@@ -10,8 +10,15 @@ class _BillCategory {
   const _BillCategory(this.name, this.icon, this.bg, this.iconColor);
 }
 
-class TagihanScreen extends StatelessWidget {
+class TagihanScreen extends StatefulWidget {
   const TagihanScreen({super.key});
+
+  @override
+  State<TagihanScreen> createState() => _TagihanScreenState();
+}
+
+class _TagihanScreenState extends State<TagihanScreen> {
+  String _searchQuery = '';
 
   static const _categories = [
     _BillCategory('Electricity', Icons.bolt_rounded,
@@ -25,6 +32,14 @@ class TagihanScreen extends StatelessWidget {
     _BillCategory('Gas', Icons.local_fire_department_rounded,
         Color(0xFFEF5350), Colors.white),
   ];
+
+  List<_BillCategory> get _filteredCategories {
+    if (_searchQuery.isEmpty) return _categories;
+    return _categories
+        .where((c) =>
+            c.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,9 +87,10 @@ class TagihanScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.border),
               ),
-              child: const TextField(
-                style: TextStyle(fontSize: 15, color: AppColors.textPrimary),
-                decoration: InputDecoration(
+              child: TextField(
+                onChanged: (v) => setState(() => _searchQuery = v),
+                style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
+                decoration: const InputDecoration(
                   hintText: 'Search biller name or ID...',
                   hintStyle:
                       TextStyle(color: AppColors.textHint, fontSize: 15),
@@ -97,62 +113,73 @@ class TagihanScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 1.3,
-              ),
-              itemCount: _categories.length,
-              itemBuilder: (ctx, i) {
-                final c = _categories[i];
-                return Semantics(
-                  label: c.name,
-                  button: true,
-                  child: GestureDetector(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DetailTagihanScreen(category: c.name),
-                      ),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: c.bg,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(c.icon, color: c.iconColor, size: 28),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            c.name,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+            if (_filteredCategories.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: Text(
+                    'No categories found',
+                    style: TextStyle(color: AppColors.textSecondary),
                   ),
-                );
-              },
-            ),
+                ),
+              )
+            else
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.3,
+                ),
+                itemCount: _filteredCategories.length,
+                itemBuilder: (ctx, i) {
+                  final c = _filteredCategories[i];
+                  return Semantics(
+                    label: c.name,
+                    button: true,
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DetailTagihanScreen(category: c.name),
+                        ),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: c.bg,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(c.icon, color: c.iconColor, size: 28),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              c.name,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             const SizedBox(height: 28),
 
             // Saved Billers

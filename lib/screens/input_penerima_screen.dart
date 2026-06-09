@@ -19,6 +19,7 @@ class InputPenerimaScreen extends StatefulWidget {
 class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
   final _accountController = TextEditingController();
   String _selectedBank = 'BRI';
+  bool _isLoading = false;
 
   static const _banks = ['BRI', 'BCA', 'Mandiri', 'BNI', 'CIMB', 'Danamon'];
 
@@ -26,6 +27,34 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
   void dispose() {
     _accountController.dispose();
     super.dispose();
+  }
+
+  void _verifyRecipient() async {
+    if (_accountController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter account number')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    // Simulate network delay
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => InputNominalScreen(
+          recipientName: widget.prefillName ?? 'Penerima Terverifikasi',
+          bank: _selectedBank,
+          accountNumber: _accountController.text,
+        ),
+      ),
+    );
   }
 
   @override
@@ -160,23 +189,21 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => InputNominalScreen(
-                      recipientName: widget.prefillName ?? 'Penerima',
-                      bank: _selectedBank,
-                      accountNumber: _accountController.text.isEmpty
-                          ? '8472 9011 3345'
-                          : _accountController.text,
-                    ),
-                  ),
-                ),
-                icon: const Icon(Icons.person_add_rounded,
-                    color: Colors.white, size: 20),
-                label: const Text(
-                  'Verify Recipient',
-                  style: TextStyle(
+                onPressed: _isLoading ? null : _verifyRecipient,
+                icon: _isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.person_add_rounded,
+                        color: Colors.white, size: 20),
+                label: Text(
+                  _isLoading ? 'Verifying...' : 'Verify Recipient',
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,

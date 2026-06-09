@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../models/transaction.dart';
 
 class KonfirmasiTransferScreen extends StatelessWidget {
   final String recipientName;
@@ -21,6 +22,17 @@ class KonfirmasiTransferScreen extends StatelessWidget {
       )}';
 
   void _confirm(BuildContext context) {
+    // Add transaction to AppData
+    AppData().addTransaction(Transaction(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      merchantName: recipientName,
+      category: 'Transfer',
+      time: 'Just now',
+      amount: amount,
+      isDebit: true,
+      iconPath: 'transfer',
+    ));
+
     showDialog(
       context: context,
       barrierDismissible: false,

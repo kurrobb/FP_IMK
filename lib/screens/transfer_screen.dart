@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import 'input_penerima_screen.dart';
+import 'login_screen.dart'; // Sesuaikan dengan nama file login screen Anda
 
 class _FrequentContact {
   final String name;
@@ -12,8 +13,16 @@ class _FrequentContact {
       this.name, this.bank, this.account, this.initials, this.color);
 }
 
-class TransferScreen extends StatelessWidget {
+class TransferScreen extends StatefulWidget {
   const TransferScreen({super.key});
+
+  @override
+  State<TransferScreen> createState() => _TransferScreenState();
+}
+
+class _TransferScreenState extends State<TransferScreen> {
+  String _searchQuery = '';
+  bool _isLoggedIn = false; // Ganti dengan sistem auth yang sebenarnya
 
   static const _methods = [
     ('Bank Account', Icons.account_balance_rounded, AppColors.primary),
@@ -28,6 +37,40 @@ class TransferScreen extends StatelessWidget {
     _FrequentContact(
         'Samuel Roberts', 'E-Wallet', '+1 (555) 0192', 'SR', Color(0xFFBF360C)),
   ];
+
+  List<_FrequentContact> get _filteredContacts {
+    if (_searchQuery.isEmpty) return _contacts;
+    return _contacts
+        .where((c) =>
+    c.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+        c.bank.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
+  }
+
+  // Fungsi untuk navigasi ke halaman penerima dengan pengecekan login
+  void _navigateToInputPenerima(String method, {String? prefillName}) {
+    // Cek apakah user sudah login
+    if (!_isLoggedIn) {
+      // Redirect ke halaman login
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoginScreen(), // Ganti dengan halaman login Anda
+        ),
+      );
+    } else {
+      // Jika sudah login, langsung ke halaman input penerima
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => InputPenerimaScreen(
+            method: method,
+            prefillName: prefillName,
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +98,13 @@ class TransferScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.border),
               ),
-              child: const TextField(
-                style: TextStyle(fontSize: 15, color: AppColors.textPrimary),
-                decoration: InputDecoration(
+              child: TextField(
+                onChanged: (v) => setState(() => _searchQuery = v),
+                style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
+                decoration: const InputDecoration(
                   hintText: 'Name, @username, or phone',
                   hintStyle:
-                      TextStyle(color: AppColors.textHint, fontSize: 15),
+                  TextStyle(color: AppColors.textHint, fontSize: 15),
                   prefixIcon: Icon(Icons.search_rounded,
                       color: AppColors.textHint, size: 22),
                   border: InputBorder.none,
@@ -91,12 +135,7 @@ class TransferScreen extends StatelessWidget {
                       label: m.$1,
                       button: true,
                       child: GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => InputPenerimaScreen(method: m.$1),
-                          ),
-                        ),
+                        onTap: () => _navigateToInputPenerima(m.$1),
                         child: Container(
                           height: 100,
                           decoration: BoxDecoration(
@@ -165,81 +204,87 @@ class TransferScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _contacts.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 8),
-              itemBuilder: (context, i) {
-                final c = _contacts[i];
-                return Semantics(
-                  label: '${c.name}, ${c.bank} ${c.account}',
-                  button: true,
-                  child: GestureDetector(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => InputPenerimaScreen(
-                          method: 'Bank Account',
-                          prefillName: c.name,
+            if (_filteredContacts.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: Text(
+                    'No contacts found',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _filteredContacts.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                itemBuilder: (context, i) {
+                  final c = _filteredContacts[i];
+                  return Semantics(
+                    label: '${c.name}, ${c.bank} ${c.account}',
+                    button: true,
+                    child: GestureDetector(
+                      onTap: () => _navigateToInputPenerima(
+                        'Bank Account',
+                        prefillName: c.name,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 24,
+                              backgroundColor: c.color,
+                              child: Text(
+                                c.initials,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    c.name,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    '${c.bank} ${c.account}',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.chevron_right_rounded,
+                                color: AppColors.textHint, size: 22),
+                          ],
                         ),
                       ),
                     ),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 24,
-                            backgroundColor: c.color,
-                            child: Text(
-                              c.initials,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  c.name,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  '${c.bank} ${c.account}',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(Icons.chevron_right_rounded,
-                              color: AppColors.textHint, size: 22),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
           ],
         ),
       ),

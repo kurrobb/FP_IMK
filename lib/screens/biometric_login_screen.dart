@@ -39,9 +39,10 @@ class BiometricLoginScreen extends StatelessWidget {
                 button: true,
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacement(
+                    Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (_) => const MainShell()),
+                      (route) => false,
                     );
                   },
                   child: Container(

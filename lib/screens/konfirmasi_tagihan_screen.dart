@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../models/transaction.dart';
 
 class KonfirmasiTagihanScreen extends StatelessWidget {
   const KonfirmasiTagihanScreen({super.key});
 
   void _confirm(BuildContext context) {
+    // Add transaction to AppData
+    AppData().addTransaction(const Transaction(
+      id: 'bill-1',
+      merchantName: 'City Power Co.',
+      category: 'Bills',
+      time: 'Just now',
+      amount: 450000,
+      isDebit: true,
+      iconPath: 'bills',
+    ));
+
     showDialog(
       context: context,
       barrierDismissible: false,
