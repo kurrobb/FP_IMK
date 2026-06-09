@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../utils/formatters.dart';
 import 'input_nominal_screen.dart';
 
 class InputPenerimaScreen extends StatefulWidget {
@@ -51,7 +52,7 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
         builder: (_) => InputNominalScreen(
           recipientName: widget.prefillName ?? 'Penerima Terverifikasi',
           bank: _selectedBank,
-          accountNumber: _accountController.text,
+          accountNumber: _accountController.text.replaceAll(' ', ''),
         ),
       ),
     );
@@ -162,6 +163,7 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
               child: TextField(
                 controller: _accountController,
                 keyboardType: TextInputType.number,
+                inputFormatters: [AccountNumberFormatter()],
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
