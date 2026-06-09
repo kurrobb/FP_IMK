@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
-import '../constants/text_styles.dart';
 import '../models/transaction.dart';
 
 class TransactionItem extends StatelessWidget {
   final Transaction transaction;
+  final VoidCallback? onTap;
 
-  const TransactionItem({super.key, required this.transaction});
+  const TransactionItem({super.key, required this.transaction, this.onTap});
 
   IconData _getIcon(String iconPath) {
     switch (iconPath) {
@@ -16,8 +16,10 @@ class TransactionItem extends StatelessWidget {
         return Icons.movie_outlined;
       case 'transfer':
         return Icons.swap_horiz_rounded;
+      case 'income':
+        return Icons.account_balance_wallet_outlined;
       case 'food':
-        return Icons.coffee_outlined;
+        return Icons.restaurant_outlined;
       case 'bills':
         return Icons.receipt_long_outlined;
       case 'transport':
@@ -28,7 +30,7 @@ class TransactionItem extends StatelessWidget {
   }
 
   Color _getIconBg(String iconPath, bool isDebit) {
-    if (!isDebit) return AppColors.credit.withValues(alpha: 0.1);
+    if (!isDebit) return AppColors.creditLight;
     switch (iconPath) {
       case 'grocery':
         return const Color(0xFFE8F5E9);
@@ -64,65 +66,83 @@ class TransactionItem extends StatelessWidget {
   }
 
   String _formatAmount(double amount) {
-    final formatted = amount.toStringAsFixed(0).replaceAllMapped(
+    return 'Rp${amount.toStringAsFixed(0).replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (m) => '${m[1]}.',
-    );
-    return 'Rp$formatted';
+    )}';
   }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {},
+    return Semantics(
+      label:
+          '${transaction.merchantName}, ${transaction.isDebit ? 'debit' : 'credit'} ${_formatAmount(transaction.amount)}',
+      button: onTap != null,
+      child: Material(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-          child: Row(
-            children: [
-              // Icon
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: _getIconBg(transaction.iconPath, transaction.isDebit),
-                  borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.border),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color:
+                        _getIconBg(transaction.iconPath, transaction.isDebit),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    _getIcon(transaction.iconPath),
+                    color: _getIconColor(
+                        transaction.iconPath, transaction.isDebit),
+                    size: 22,
+                  ),
                 ),
-                child: Icon(
-                  _getIcon(transaction.iconPath),
-                  color: _getIconColor(transaction.iconPath, transaction.isDebit),
-                  size: 22,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        transaction.merchantName,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        '${transaction.category} • ${transaction.time}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 14),
-              // Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      transaction.merchantName,
-                      style: AppTextStyles.bodyLarge,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '${transaction.category} • ${transaction.time}',
-                      style: AppTextStyles.bodySmall,
-                    ),
-                  ],
+                Text(
+                  '${transaction.isDebit ? '-' : '+'}${_formatAmount(transaction.amount)}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color:
+                        transaction.isDebit ? AppColors.debit : AppColors.credit,
+                  ),
                 ),
-              ),
-              // Amount
-              Text(
-                '${transaction.isDebit ? '-' : '+'}${_formatAmount(transaction.amount)}',
-                style: transaction.isDebit
-                    ? AppTextStyles.amountDebit
-                    : AppTextStyles.amountCredit,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -1,158 +1,136 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../constants/colors.dart';
-import '../constants/text_styles.dart';
 
-class BalanceCard extends StatelessWidget {
+class BalanceCard extends StatefulWidget {
   final double balance;
-  final String accountName;
   final String accountNumber;
 
   const BalanceCard({
     super.key,
     required this.balance,
-    required this.accountName,
     required this.accountNumber,
   });
 
+  @override
+  State<BalanceCard> createState() => _BalanceCardState();
+}
+
+class _BalanceCardState extends State<BalanceCard> {
+  bool _visible = true;
+
   String _formatBalance(double amount) {
-    final parts = amount.toStringAsFixed(0).split('');
-    final result = StringBuffer();
-    for (int i = 0; i < parts.length; i++) {
-      if (i > 0 && (parts.length - i) % 3 == 0) result.write('.');
-      result.write(parts[i]);
-    }
-    return 'Rp ${result.toString()}';
+    return 'Rp${amount.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (m) => '${m[1]}.',
+    )}';
+  }
+
+  String get _maskedAccount {
+    final parts = widget.accountNumber.split(' ');
+    return 'Account ends in **${parts.last}';
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0D2E6E), Color(0xFF1A4A9C)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.35),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Decorative circles
-          Positioned(
-            top: -30,
-            right: -30,
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.05),
-              ),
+          const Text(
+            'Available Balance',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.white70,
+              fontWeight: FontWeight.w400,
             ),
           ),
-          Positioned(
-            bottom: -40,
-            right: 40,
-            child: Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.04),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _visible ? _formatBalance(widget.balance) : 'Rp ••••••••',
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
+                ),
               ),
-            ),
+              Semantics(
+                label: _visible ? 'Hide balance' : 'Show balance',
+                button: true,
+                child: GestureDetector(
+                  onTap: () => setState(() => _visible = !_visible),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.15),
+                    ),
+                    child: Icon(
+                      _visible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
               children: [
-                // Top row: label + account name
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'TOTAL SALDO',
-                      style: AppTextStyles.balanceLabel,
+                Expanded(
+                  child: Text(
+                    _maskedAccount,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
                     ),
-                    Row(
-                      children: [
-                        const Icon(Icons.person_outline,
-                            color: Colors.white54, size: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          accountName,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white70,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 10),
-                // Balance
-                Text(
-                  _formatBalance(balance),
-                  style: AppTextStyles.balance,
-                ),
-                const SizedBox(height: 16),
-                // Divider
-                Container(
-                  height: 1,
-                  color: Colors.white.withValues(alpha: 0.15),
-                ),
-                const SizedBox(height: 14),
-                // Account number row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('No. Rekening',
-                            style: AppTextStyles.balanceLabel
-                                .copyWith(fontSize: 10)),
-                        const SizedBox(height: 2),
-                        Text(
-                          accountNumber,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                      ],
+                Semantics(
+                  label: 'Copy account number',
+                  button: true,
+                  child: GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(
+                          ClipboardData(text: widget.accountNumber));
+                    },
+                    child: const Icon(
+                      Icons.copy_rounded,
+                      color: Colors.white70,
+                      size: 18,
                     ),
-                    // Chip-like icon (card chip style)
-                    Container(
-                      width: 36,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white.withValues(alpha: 0.2),
-                        border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.3),
-                            width: 1),
-                      ),
-                      child: const Icon(
-                        Icons.credit_card_rounded,
-                        color: Colors.white70,
-                        size: 18,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),

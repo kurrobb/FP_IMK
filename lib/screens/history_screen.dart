@@ -1,183 +1,272 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
-import '../constants/text_styles.dart';
 import '../models/transaction.dart';
 import '../widgets/transaction_item.dart';
+import 'detail_transaksi_screen.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
   @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  int _filterIndex = 0;
+  static const _filters = ['All Activity', 'Money In', 'Money Out'];
+
+  String _fmt(double v) => 'Rp${v.toStringAsFixed(0).replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (m) => '${m[1]}.',
+      )}';
+
+  List<Transaction> _filtered(List<Transaction> list) {
+    if (_filterIndex == 1) return list.where((t) => !t.isDebit).toList();
+    if (_filterIndex == 2) return list.where((t) => t.isDebit).toList();
+    return list;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final all = [
-      ...DummyData.todayTransactions,
-      ...DummyData.yesterdayTransactions,
-    ];
+    final todayFiltered = _filtered(DummyData.todayTransactions);
+    final yesterdayFiltered = _filtered(DummyData.yesterdayTransactions);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
         automaticallyImplyLeading: false,
-        title: const Text('Riwayat Transaksi',
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w700)),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list_rounded, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
+        title: const Text('FlexiBank'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: AppColors.border),
+        ),
       ),
-      body: Column(
-        children: [
-          // Search bar
-          Container(
-            color: AppColors.primary,
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Container(
-              height: 44,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const TextField(
-                style: TextStyle(color: Colors.white, fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Cari transaksi...',
-                  hintStyle: TextStyle(color: Colors.white60, fontSize: 14),
-                  prefixIcon:
-                      Icon(Icons.search_rounded, color: Colors.white60, size: 20),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: const Text(
+                'Transaction History',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ),
-          ),
+            const SizedBox(height: 16),
 
-          // Filter chips
-          Container(
-            color: AppColors.cardBackground,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildFilterChip('Semua', true),
-                  const SizedBox(width: 8),
-                  _buildFilterChip('Transfer', false),
-                  const SizedBox(width: 8),
-                  _buildFilterChip('Tagihan', false),
-                  const SizedBox(width: 8),
-                  _buildFilterChip('QRIS', false),
-                ],
+            // Balance card
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Current Balance',
+                            style: TextStyle(
+                                fontSize: 13, color: Colors.white70),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _fmt(DummyData.balance),
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(16)),
+                      ),
+                      child: Row(
+                        children: const [
+                          Icon(Icons.download_outlined,
+                              color: Colors.white70, size: 16),
+                          SizedBox(width: 6),
+                          Text(
+                            'e-Statement',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
+            const SizedBox(height: 16),
 
-          // Summary strip
-          Container(
-            margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF0D2E6E), Color(0xFF1A4A9C)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
+            // Filter pills
+            SizedBox(
+              height: 44,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: _filters.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 10),
+                itemBuilder: (ctx, i) {
+                  final active = i == _filterIndex;
+                  return Semantics(
+                    label: _filters[i],
+                    button: true,
+                    selected: active,
+                    child: GestureDetector(
+                      onTap: () => setState(() => _filterIndex = i),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: active ? AppColors.primary : Colors.white,
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(
+                            color:
+                                active ? AppColors.primary : AppColors.border,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (i == 1)
+                              const Icon(Icons.arrow_downward_rounded,
+                                  size: 14,
+                                  color: Colors.white70),
+                            if (i == 2)
+                              const Icon(Icons.arrow_upward_rounded,
+                                  size: 14,
+                                  color: Colors.white70),
+                            if (i > 0) const SizedBox(width: 4),
+                            Text(
+                              _filters[i],
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: active
+                                    ? Colors.white
+                                    : AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
-              borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildSummaryItem('Total Keluar', '-Rp602.500', AppColors.debit),
-                Container(width: 1, height: 32, color: Colors.white24),
-                _buildSummaryItem('Total Masuk', '+Rp1.500.000', AppColors.credit.withValues(alpha: 0.9)),
-              ],
-            ),
-          ),
+            const SizedBox(height: 20),
 
-          // List
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-              physics: const BouncingScrollPhysics(),
-              itemCount: all.length + 2,
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return _buildDateHeader('Hari Ini');
-                }
-                if (index == DummyData.todayTransactions.length + 1) {
-                  return _buildDateHeader('Kemarin');
-                }
-
-                final txIndex = index <= DummyData.todayTransactions.length
-                    ? index - 1
-                    : index - 2;
-                final txList = index <= DummyData.todayTransactions.length
-                    ? DummyData.todayTransactions
-                    : DummyData.yesterdayTransactions;
-
-                if (txIndex >= txList.length) return const SizedBox.shrink();
-
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 1),
-                  decoration: BoxDecoration(
-                    color: AppColors.cardBackground,
-                    borderRadius: BorderRadius.circular(0),
+            // TODAY
+            if (todayFiltered.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: const Text(
+                  'TODAY',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondary,
+                    letterSpacing: 1.0,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: TransactionItem(transaction: txList[txIndex]),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+                ),
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: todayFiltered.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (ctx, i) {
+                    final tx = todayFiltered[i];
+                    return TransactionItem(
+                      transaction: tx,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              DetailTransaksiScreen(transaction: tx),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
 
-  Widget _buildFilterChip(String label, bool isActive) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: isActive ? AppColors.primary : AppColors.surfaceGray,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: isActive ? Colors.white : AppColors.textSecondary,
+            // YESTERDAY
+            if (yesterdayFiltered.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: const Text(
+                  'YESTERDAY',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondary,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: yesterdayFiltered.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (ctx, i) {
+                    final tx = yesterdayFiltered[i];
+                    return TransactionItem(
+                      transaction: tx,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              DetailTransaksiScreen(transaction: tx),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _buildDateHeader(String date) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
-      child: Text(date, style: AppTextStyles.sectionHeader),
-    );
-  }
-
-  Widget _buildSummaryItem(String label, String amount, Color color) {
-    return Column(
-      children: [
-        Text(label,
-            style: const TextStyle(fontSize: 11, color: Colors.white70)),
-        const SizedBox(height: 4),
-        Text(amount,
-            style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.w700, color: color)),
-      ],
     );
   }
 }
