@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'constants/colors.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/transfer_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/settings_screen.dart';
+import 'services/accessibility_provider.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness: Brightness.light,
   ));
-  runApp(const MyApp());
+
+  // Initialize accessibility provider
+  final accessibilityProvider = AccessibilityProvider();
+  await accessibilityProvider.init();
+
+  runApp(
+    ChangeNotifierProvider<AccessibilityProvider>.value(
+      value: accessibilityProvider,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -22,34 +34,49 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'FlexiBank',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          brightness: Brightness.light,
-        ),
-        scaffoldBackgroundColor: AppColors.background,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: AppColors.primary,
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle: TextStyle(
-            color: AppColors.primary,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'Inter',
+    return Consumer<AccessibilityProvider>(
+      builder: (context, accessibilityProvider, _) {
+        final textScaleFactor = accessibilityProvider.getTextScaleFactor();
+        final baseAppBarFontSize = 18.0 * textScaleFactor;
+
+        return MaterialApp(
+          title: 'FlexiBank',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: AppColors.primary,
+              brightness: Brightness.light,
+            ),
+            scaffoldBackgroundColor: AppColors.background,
+            appBarTheme: AppBarTheme(
+              backgroundColor: Colors.white,
+              foregroundColor: AppColors.primary,
+              elevation: 0,
+              centerTitle: true,
+              titleTextStyle: TextStyle(
+                color: AppColors.primary,
+                fontSize: baseAppBarFontSize,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Inter',
+              ),
+              systemOverlayStyle: const SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: Brightness.dark,
+              ),
+            ),
           ),
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.dark,
-          ),
-        ),
-      ),
-      home: const LoginScreen(),
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(textScaleFactor),
+              ),
+              child: child!,
+            );
+          },
+          home: const LoginScreen(),
+        );
+      },
     );
   }
 }

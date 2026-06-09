@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
-import '../utils/formatters.dart';
 import '../widgets/custom_numpad.dart';
 import 'input_nominal_screen.dart';
 

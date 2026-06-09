@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants/colors.dart';
+import '../services/accessibility_provider.dart';
+import '../utils/accessibility_constants.dart';
 
 class PengaturanAksesibilitasScreen extends StatefulWidget {
   const PengaturanAksesibilitasScreen({super.key});
@@ -11,12 +14,6 @@ class PengaturanAksesibilitasScreen extends StatefulWidget {
 
 class _PengaturanAksesibilitasScreenState
     extends State<PengaturanAksesibilitasScreen> {
-  bool _largeText = true;
-  bool _voiceControl = false;
-  bool _assistiveTouch = true;
-  int _buttonSize = 1; // 0=Standard, 1=Large, 2=Maximum
-  int _spacing = 1; // 0=Compact, 1=Relaxed
-
   static const _buttonSizes = ['Standard', 'Large', 'Maximum'];
   static const _spacings = ['Compact', 'Relaxed'];
 
@@ -36,178 +33,201 @@ class _PengaturanAksesibilitasScreenState
           child: Container(height: 1, color: AppColors.border),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            const Text(
-              'Accessibility',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'Adjust your experience for maximum\nclarity and comfort.',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 20),
+      body: Consumer<AccessibilityProvider>(
+        builder: (context, accessibilityProvider, _) {
+          final settings = accessibilityProvider.settings;
+          final spacingMultiplier = accessibilityProvider.getSpacingMultiplier();
 
-            // Toggle settings card
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Column(
-                children: [
-                  _toggleItem(
-                    icon: Icons.text_fields_rounded,
-                    title: 'Large Text Size',
-                    subtitle: 'Magnifies all app text for readability',
-                    value: _largeText,
-                    onChanged: (v) => setState(() => _largeText = v),
-                  ),
-                  const Divider(height: 1, color: AppColors.divider),
-                  _toggleItem(
-                    icon: Icons.mic_none_rounded,
-                    title: 'Voice Control',
-                    subtitle: 'Navigate and transact using voice commands',
-                    value: _voiceControl,
-                    onChanged: (v) => setState(() => _voiceControl = v),
-                  ),
-                  const Divider(height: 1, color: AppColors.divider),
-                  _toggleItem(
-                    icon: Icons.touch_app_rounded,
-                    title: 'Assistive Touch',
-                    subtitle: 'Enables on-screen floating action menu',
-                    value: _assistiveTouch,
-                    onChanged: (v) => setState(() => _assistiveTouch = v),
-                  ),
-                ],
-              ),
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.all(
+              AccessibilityConstants.getPadding(spacingMultiplier),
             ),
-            const SizedBox(height: 20),
-
-            // Button Sizing card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: const [
-                      Icon(Icons.fullscreen_rounded,
-                          color: AppColors.primary, size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        'Button Sizing',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Increases the tap area of all interactive elements.',
-                    style: TextStyle(
-                        fontSize: 13, color: AppColors.textSecondary, height: 1.4),
-                  ),
-                  const SizedBox(height: 14),
-                  _segmentedControl(
-                    options: _buttonSizes,
-                    selected: _buttonSize,
-                    onSelect: (i) => setState(() => _buttonSize = i),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Element Spacing card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: const [
-                      Icon(Icons.space_bar_rounded,
-                          color: AppColors.primary, size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        'Element Spacing',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Adds more space between items to prevent accidental taps.',
-                    style: TextStyle(
-                        fontSize: 13, color: AppColors.textSecondary, height: 1.4),
-                  ),
-                  const SizedBox(height: 14),
-                  _segmentedControl(
-                    options: _spacings,
-                    selected: _spacing,
-                    onSelect: (i) => setState(() => _spacing = i),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Save button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
-                ),
-                child: const Text(
-                  'Save Settings',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 4 * spacingMultiplier),
+                const Text(
+                  'Accessibility',
                   style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white),
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-              ),
+                SizedBox(height: 6 * spacingMultiplier),
+                const Text(
+                  'Adjust your experience for maximum\nclarity and comfort.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+                SizedBox(height: 20 * spacingMultiplier),
+
+                // Toggle settings card
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    children: [
+                      _toggleItem(
+                        icon: Icons.text_fields_rounded,
+                        title: 'Large Text Size',
+                        subtitle: 'Magnifies all app text for readability',
+                        value: settings.largeText,
+                        onChanged: (v) =>
+                            accessibilityProvider.setLargeText(v),
+                      ),
+                      const Divider(height: 1, color: AppColors.divider),
+                      _toggleItem(
+                        icon: Icons.mic_none_rounded,
+                        title: 'Voice Control',
+                        subtitle: 'Navigate and transact using voice commands',
+                        value: settings.voiceControl,
+                        onChanged: (v) =>
+                            accessibilityProvider.setVoiceControl(v),
+                      ),
+                      const Divider(height: 1, color: AppColors.divider),
+                      _toggleItem(
+                        icon: Icons.touch_app_rounded,
+                        title: 'Assistive Touch',
+                        subtitle: 'Enables on-screen floating action menu',
+                        value: settings.assistiveTouch,
+                        onChanged: (v) =>
+                            accessibilityProvider.setAssistiveTouch(v),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20 * spacingMultiplier),
+
+                // Button Sizing card
+                Container(
+                  padding: EdgeInsets.all(16 * spacingMultiplier),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.fullscreen_rounded,
+                              color: AppColors.primary,
+                              size: 20 * spacingMultiplier),
+                          SizedBox(width: 8 * spacingMultiplier),
+                          const Text(
+                            'Button Sizing',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 6 * spacingMultiplier),
+                      const Text(
+                        'Increases the tap area of all interactive elements.',
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                            height: 1.4),
+                      ),
+                      SizedBox(height: 14 * spacingMultiplier),
+                      _segmentedControl(
+                        options: _buttonSizes,
+                        selected: settings.buttonSize,
+                        onSelect: (i) =>
+                            accessibilityProvider.setButtonSize(i),
+                        spacingMultiplier: spacingMultiplier,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 16 * spacingMultiplier),
+
+                // Element Spacing card
+                Container(
+                  padding: EdgeInsets.all(16 * spacingMultiplier),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.space_bar_rounded,
+                              color: AppColors.primary,
+                              size: 20 * spacingMultiplier),
+                          SizedBox(width: 8 * spacingMultiplier),
+                          const Text(
+                            'Element Spacing',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 6 * spacingMultiplier),
+                      const Text(
+                        'Adds more space between items to prevent accidental taps.',
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                            height: 1.4),
+                      ),
+                      SizedBox(height: 14 * spacingMultiplier),
+                      _segmentedControl(
+                        options: _spacings,
+                        selected: settings.spacing,
+                        onSelect: (i) =>
+                            accessibilityProvider.setSpacing(i),
+                        spacingMultiplier: spacingMultiplier,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 32 * spacingMultiplier),
+
+                // Save button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56 *
+                      accessibilityProvider.getButtonSizeMultiplier(),
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: const Text(
+                      'Save Settings',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -252,7 +272,9 @@ class _PengaturanAksesibilitasScreenState
                   Text(
                     subtitle,
                     style: const TextStyle(
-                        fontSize: 12, color: AppColors.textSecondary, height: 1.4),
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                        height: 1.4),
                   ),
                 ],
               ),
@@ -272,9 +294,10 @@ class _PengaturanAksesibilitasScreenState
     required List<String> options,
     required int selected,
     required ValueChanged<int> onSelect,
+    required double spacingMultiplier,
   }) {
     return Container(
-      height: 48,
+      height: 48 * spacingMultiplier,
       decoration: BoxDecoration(
         color: AppColors.surfaceGray,
         borderRadius: BorderRadius.circular(12),
