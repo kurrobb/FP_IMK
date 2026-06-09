@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fp_imk/services/auth_service.dart';
 import '../constants/colors.dart';
 import 'input_penerima_screen.dart';
 import 'login_screen.dart'; // Sesuaikan dengan nama file login screen Anda
@@ -22,7 +23,7 @@ class TransferScreen extends StatefulWidget {
 
 class _TransferScreenState extends State<TransferScreen> {
   String _searchQuery = '';
-  bool _isLoggedIn = false; // Ganti dengan sistem auth yang sebenarnya
+  bool get _isLoggedIn => AuthService.isLoggedIn;
 
   static const _methods = [
     ('Bank Account', Icons.account_balance_rounded, AppColors.primary),

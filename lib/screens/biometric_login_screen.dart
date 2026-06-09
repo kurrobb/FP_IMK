@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import '../main.dart';
+import 'package:fp_imk/services/auth_service.dart';
 
 class BiometricLoginScreen extends StatelessWidget {
   const BiometricLoginScreen({super.key});
@@ -39,6 +40,7 @@ class BiometricLoginScreen extends StatelessWidget {
                 button: true,
                 child: GestureDetector(
                   onTap: () {
+                    AuthService.login();
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (_) => const MainShell()),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fp_imk/services/auth_service.dart';
 import '../constants/colors.dart';
 import '../main.dart';
 import 'biometric_login_screen.dart';
@@ -33,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
     
-    // Simple email validation
     if (!_emailController.text.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -43,6 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
+
+    // ✅ Set login flag to true
+    AuthService.login();
 
     Navigator.pushAndRemoveUntil(
       context,
