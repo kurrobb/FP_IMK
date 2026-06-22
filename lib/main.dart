@@ -7,7 +7,11 @@ import 'screens/home_screen.dart';
 import 'screens/transfer_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/pengaturan_aksesibilitas_screen.dart';
+import 'screens/tagihan_screen.dart';
+import 'screens/qris_screen.dart';
 import 'services/accessibility_provider.dart';
+import 'widgets/assistive_touch_menu.dart';
+import 'widgets/voice_control_overlay.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -95,6 +99,50 @@ class _MainShellState extends State<MainShell> {
     setState(() => _currentIndex = index);
   }
 
+  void _showVoiceOverlay() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.55),
+      builder: (ctx) => VoiceControlOverlay(
+        onCommand: (command) {
+          Navigator.pop(ctx);
+          _handleVoiceCommand(command);
+        },
+        onDismiss: () => Navigator.pop(ctx),
+      ),
+    );
+  }
+
+  void _handleVoiceCommand(String command) {
+    switch (command) {
+      case 'Beranda':
+        _onNavTap(0);
+        break;
+      case 'Transfer':
+        _onNavTap(1);
+        break;
+      case 'Riwayat':
+        _onNavTap(2);
+        break;
+      case 'Pengaturan':
+        _onNavTap(3);
+        break;
+      case 'Tagihan':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const TagihanScreen()),
+        );
+        break;
+      case 'QRIS':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const QrisScreen()),
+        );
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screens = [
@@ -106,9 +154,26 @@ class _MainShellState extends State<MainShell> {
       ),
     ];
 
-    return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: screens),
-      bottomNavigationBar: _buildBottomNav(),
+    return Consumer<AccessibilityProvider>(
+      builder: (context, provider, _) {
+        return Scaffold(
+          body: Stack(
+            children: [
+              IndexedStack(index: _currentIndex, children: screens),
+              AssistiveTouchMenu(
+                isEnabled: provider.settings.assistiveTouch,
+                isVoiceEnabled: provider.settings.voiceControl,
+                onHome: () => _onNavTap(0),
+                onTransfer: () => _onNavTap(1),
+                onHistory: () => _onNavTap(2),
+                onSettings: () => _onNavTap(3),
+                onVoice: _showVoiceOverlay,
+              ),
+            ],
+          ),
+          bottomNavigationBar: _buildBottomNav(),
+        );
+      },
     );
   }
 
