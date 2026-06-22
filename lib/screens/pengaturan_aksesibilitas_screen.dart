@@ -22,12 +22,7 @@ class _PengaturanAksesibilitasScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded,
-              color: AppColors.primary, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('FlexiBank'),
+        title: const Text('Pengaturan'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(height: 1, color: AppColors.border),
