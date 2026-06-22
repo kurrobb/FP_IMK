@@ -5,7 +5,9 @@ import '../services/accessibility_provider.dart';
 import '../utils/accessibility_constants.dart';
 
 class PengaturanAksesibilitasScreen extends StatefulWidget {
-  const PengaturanAksesibilitasScreen({super.key});
+  final VoidCallback? onNavTap;
+
+  const PengaturanAksesibilitasScreen({super.key, this.onNavTap});
 
   @override
   State<PengaturanAksesibilitasScreen> createState() =>
@@ -203,7 +205,12 @@ class _PengaturanAksesibilitasScreenState
                   height: 56 *
                       accessibilityProvider.getButtonSizeMultiplier(),
                   child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      // Navigate to home screen after saving
+                      if (widget.onNavTap != null) {
+                        widget.onNavTap!.call();
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       elevation: 0,

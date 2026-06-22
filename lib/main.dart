@@ -101,7 +101,9 @@ class _MainShellState extends State<MainShell> {
       HomeScreen(onNavTap: _onNavTap),
       const TransferScreen(),
       const HistoryScreen(),
-      const PengaturanAksesibilitasScreen(),
+      PengaturanAksesibilitasScreen(
+        onNavTap: () => _onNavTap(0),
+      ),
     ];
 
     return Scaffold(
