@@ -1,0 +1,12 @@
+cd C:\Users\lenovo\Documents\projects\FP_IMK
+taskkill /F /IM dart.exe
+taskkill /F /IM flutter.exe
+taskkill /F /IM java.exe
+taskkill /F /IM gradle.exe
+Get-Process | Where-Object { $_.Path -like "*FP_IMK*" } | Stop-Process -Force
+Remove-Item -Recurse -Force .dart_tool
+Remove-Item -Recurse -Force build
+Remove-Item -Recurse -Force ios\Flutter\ephemeral
+Remove-Item -Recurse -Force macos\Flutter\ephemeral
+Remove-Item -Recurse -Force windows\flutter\ephemeral 
+

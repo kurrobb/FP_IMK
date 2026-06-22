@@ -3,6 +3,7 @@ import 'package:fp_imk/services/auth_service.dart';
 import '../constants/colors.dart';
 import '../main.dart';
 import 'biometric_login_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -262,6 +263,39 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontSize: 13,
                         color: AppColors.textSecondary,
                       ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Create Account link
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Don\'t have an account? ',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const RegisterScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Create Account',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -5,7 +5,9 @@ import '../services/accessibility_provider.dart';
 import '../utils/accessibility_constants.dart';
 
 class PengaturanAksesibilitasScreen extends StatefulWidget {
-  const PengaturanAksesibilitasScreen({super.key});
+  final VoidCallback? onNavTap;
+
+  const PengaturanAksesibilitasScreen({super.key, this.onNavTap});
 
   @override
   State<PengaturanAksesibilitasScreen> createState() =>
@@ -22,12 +24,7 @@ class _PengaturanAksesibilitasScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded,
-              color: AppColors.primary, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('FlexiBank'),
+        title: const Text('Pengaturan'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(height: 1, color: AppColors.border),
@@ -208,7 +205,12 @@ class _PengaturanAksesibilitasScreenState
                   height: 56 *
                       accessibilityProvider.getButtonSizeMultiplier(),
                   child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      // Navigate to home screen after saving
+                      if (widget.onNavTap != null) {
+                        widget.onNavTap!.call();
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       elevation: 0,

@@ -6,7 +6,7 @@ import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/transfer_screen.dart';
 import 'screens/history_screen.dart';
-import 'screens/settings_screen.dart';
+import 'screens/pengaturan_aksesibilitas_screen.dart';
 import 'services/accessibility_provider.dart';
 
 void main() async {
@@ -101,7 +101,9 @@ class _MainShellState extends State<MainShell> {
       HomeScreen(onNavTap: _onNavTap),
       const TransferScreen(),
       const HistoryScreen(),
-      const SettingsScreen(),
+      PengaturanAksesibilitasScreen(
+        onNavTap: () => _onNavTap(0),
+      ),
     ];
 
     return Scaffold(
