@@ -13,10 +13,15 @@ class AccessibilityConstants {
   static const double spacingCompact = 0.8;
   static const double spacingRelaxed = 1.2;
 
+  // WCAG 2.5.5 Target Size compliance - minimum 44x44 CSS pixels
+  // https://www.w3.org/WAI/WCAG21/Understanding/target-size.html
+  static const double wcagMinTapTarget = 44.0;
+
   // Base sizes
   static const double baseButtonHeight = 56.0;
   static const double baseButtonRadius = 14.0;
   static const double basePadding = 20.0;
+  static const double baseIconSize = 20.0;
 
   // Calculated sizes based on settings
   static double getButtonHeight(double multiplier) {
@@ -32,7 +37,7 @@ class AccessibilityConstants {
   }
 
   static double getIconSize(double multiplier) {
-    return 20.0 * (1.0 + (multiplier - 1.0) * 0.3);
+    return baseIconSize * (1.0 + (multiplier - 1.0) * 0.3);
   }
 
   static double getSpacing(double baseSpacing, double multiplier) {

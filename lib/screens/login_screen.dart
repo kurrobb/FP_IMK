@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fp_imk/services/auth_service.dart';
+import 'package:provider/provider.dart';
 import '../constants/colors.dart';
 import '../main.dart';
+import '../services/accessibility_provider.dart';
+import '../widgets/accessible_button.dart';
 import 'biometric_login_screen.dart';
 import 'register_screen.dart';
 
@@ -57,244 +60,221 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const SizedBox(height: 24),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(24, 36, 24, 36),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.border),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
+    return Consumer<AccessibilityProvider>(
+      builder: (context, accessibilityProvider, _) {
+        final spacingScale = accessibilityProvider.getSpacingMultiplier();
+
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(20 * spacingScale),
+              child: Column(
+                children: [
+                  SizedBox(height: 24 * spacingScale),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(24, 36, 24, 36),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: AppColors.border),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 88,
-                      height: 88,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFFE8EAF6),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'FB',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 88,
+                          height: 88,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0xFFE8EAF6),
                           ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Secure Login',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Enter your details to access your\naccounts safely.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-
-                    // Email
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: const Text(
-                        'Email',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInputField(
-                      controller: _emailController,
-                      hint: 'rexy@example.com',
-                      icon: Icons.person_outline_rounded,
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Password
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: const Text(
-                        'Password',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInputField(
-                      controller: _passwordController,
-                      hint: 'Enter Password',
-                      icon: Icons.lock_outline_rounded,
-                      obscure: _obscurePassword,
-                      suffix: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: AppColors.textHint,
-                          size: 20,
-                        ),
-                        onPressed: () =>
-                            setState(() => _obscurePassword = !_obscurePassword),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: const Text(
-                          'Forgot your password?',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-
-                    // Secure Login button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: _login,
-                        icon: const SizedBox.shrink(),
-                        label: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Text(
-                              'Secure Login',
+                          child: Center(
+                            child: Text(
+                              'FB',
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primary,
                               ),
                             ),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward_rounded,
-                                color: Colors.white, size: 20),
-                          ],
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Biometric Login button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const BiometricLoginScreen()),
-                          );
-                        },
-                        icon: const Icon(Icons.fingerprint_rounded,
-                            color: AppColors.primary, size: 22),
-                        label: const Text(
-                          'Biometric Login',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.border, width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Create Account link
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                        SizedBox(height: 20 * spacingScale),
                         const Text(
-                          'Don\'t have an account? ',
+                          'Secure Login',
                           style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
+                        SizedBox(height: 8 * spacingScale),
+                        const Text(
+                          'Enter your details to access your\naccounts safely.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                            height: 1.5,
+                          ),
+                        ),
+                        SizedBox(height: 28 * spacingScale),
+
+                        // Email
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: const Text(
+                            'Email',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 8 * spacingScale),
+                        _buildInputField(
+                          controller: _emailController,
+                          hint: 'rexy@example.com',
+                          icon: Icons.person_outline_rounded,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        SizedBox(height: 16 * spacingScale),
+
+                        // Password
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: const Text(
+                            'Password',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 8 * spacingScale),
+                        _buildInputField(
+                          controller: _passwordController,
+                          hint: 'Enter Password',
+                          icon: Icons.lock_outline_rounded,
+                          obscure: _obscurePassword,
+                          suffix: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: AppColors.textHint,
+                              size: 20,
+                            ),
+                            onPressed: () =>
+                                setState(() => _obscurePassword = !_obscurePassword),
+                          ),
+                        ),
+                        SizedBox(height: 12 * spacingScale),
+
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: const Text(
+                              'Forgot your password?',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 28 * spacingScale),
+
+                        // Secure Login button
+                        AccessibleElevatedButton(
+                          onPressed: _login,
+                          icon: Icons.arrow_forward_rounded,
+                          iconTrailing: true,
+                          child: const Text(
+                            'Secure Login',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 12 * spacingScale),
+
+                        // Biometric Login button
+                        AccessibleOutlinedButton(
+                          onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const RegisterScreen(),
-                              ),
+                                  builder: (_) => const BiometricLoginScreen()),
                             );
                           },
+                          icon: Icons.fingerprint_rounded,
                           child: const Text(
-                            'Create Account',
+                            'Biometric Login',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: AppColors.primary,
                             ),
                           ),
                         ),
+                        SizedBox(height: 24 * spacingScale),
+
+                        // Create Account link
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Don\'t have an account? ',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const RegisterScreen(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                'Create Account',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 24 * spacingScale),
+                ],
               ),
-              const SizedBox(height: 24),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

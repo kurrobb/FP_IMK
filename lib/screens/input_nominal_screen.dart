@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants/colors.dart';
+import '../services/accessibility_provider.dart';
+import '../widgets/accessible_button.dart';
 import '../widgets/custom_numpad.dart';
 import 'konfirmasi_transfer_screen.dart';
 
@@ -63,190 +66,181 @@ class _InputNominalScreenState extends State<InputNominalScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded,
-              color: AppColors.primary, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('Transfer'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: AppColors.border),
-        ),
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 16),
+    return Consumer<AccessibilityProvider>(
+      builder: (context, accessibilityProvider, _) {
+        final spacingScale = accessibilityProvider.getSpacingMultiplier();
 
-          // Recipient card
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: AppColors.primary,
-                    child: Text(
-                      widget.recipientName.isNotEmpty
-                          ? widget.recipientName[0].toUpperCase()
-                          : 'R',
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16),
-                    ),
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_rounded,
+                  color: AppColors.primary, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: const Text('Transfer'),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1),
+              child: Container(height: 1, color: AppColors.border),
+            ),
+          ),
+          body: Column(
+            children: [
+              SizedBox(height: 16 * spacingScale),
+
+              // Recipient card
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20 * spacingScale),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Sending to',
-                          style: TextStyle(
-                              fontSize: 12, color: AppColors.textSecondary),
-                        ),
-                        Text(
-                          widget.recipientName,
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: AppColors.primary,
+                        child: Text(
+                          widget.recipientName.isNotEmpty
+                              ? widget.recipientName[0].toUpperCase()
+                              : 'R',
                           style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16),
                         ),
-                        Text(
-                          '${widget.bank} ${widget.accountNumber}',
-                          style: const TextStyle(
-                              fontSize: 13, color: AppColors.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(Icons.verified_rounded,
-                      color: AppColors.teal, size: 24),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 28),
-
-          // Amount display
-          const Text(
-            'Enter Amount',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                const Text(
-                  'Rp ',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                Text(
-                  _formattedAmount,
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w700,
-                    color: _canContinue
-                        ? AppColors.primary
-                        : AppColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Available Balance: ${_formatBalance(_availableBalance)}',
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.textSecondary,
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // Numpad
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: CustomNumpad(
-                onKeyPressed: _onKey,
-                showMic: true,
-              ),
-            ),
-          ),
-
-          // Continue button
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: _canContinue
-                    ? () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => KonfirmasiTransferScreen(
-                              recipientName: widget.recipientName,
-                              bank: widget.bank,
-                              accountNumber: widget.accountNumber,
-                              amount: double.tryParse(_amount) ?? 0,
+                      ),
+                      SizedBox(width: 12 * spacingScale),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Sending to',
+                              style: TextStyle(
+                                  fontSize: 12, color: AppColors.textSecondary),
                             ),
-                          ),
-                        )
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _canContinue
-                      ? AppColors.primary
-                      : AppColors.surfaceDark,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                child: Text(
-                  'Continue',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: _canContinue
-                        ? Colors.white
-                        : AppColors.textSecondary,
+                            Text(
+                              widget.recipientName,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              '${widget.bank} ${widget.accountNumber}',
+                              style: const TextStyle(
+                                  fontSize: 13, color: AppColors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.verified_rounded,
+                          color: AppColors.teal, size: 24),
+                    ],
                   ),
                 ),
               ),
-            ),
+
+              SizedBox(height: 28 * spacingScale),
+
+              // Amount display
+              const Text(
+                'Enter Amount',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              SizedBox(height: 8 * spacingScale),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20 * spacingScale),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    const Text(
+                      'Rp ',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      _formattedAmount,
+                      style: TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.w700,
+                        color: _canContinue
+                            ? AppColors.primary
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 6 * spacingScale),
+              Text(
+                'Available Balance: ${_formatBalance(_availableBalance)}',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+
+              SizedBox(height: 20 * spacingScale),
+
+              // Numpad
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16 * spacingScale),
+                  child: CustomNumpad(
+                    onKeyPressed: _onKey,
+                    showMic: true,
+                  ),
+                ),
+              ),
+
+              // Continue button
+              Padding(
+                padding: EdgeInsets.fromLTRB(20 * spacingScale, 8 * spacingScale, 20 * spacingScale, 24 * spacingScale),
+                child: AccessibleElevatedButton(
+                  onPressed: _canContinue
+                      ? () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => KonfirmasiTransferScreen(
+                                recipientName: widget.recipientName,
+                                bank: widget.bank,
+                                accountNumber: widget.accountNumber,
+                                amount: double.tryParse(_amount) ?? 0,
+                              ),
+                            ),
+                          )
+                      : null,
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: _canContinue
+                          ? Colors.white
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
-
 }

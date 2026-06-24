@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants/colors.dart';
+import '../services/accessibility_provider.dart';
+import '../widgets/accessible_button.dart';
 import '../widgets/custom_numpad.dart';
 import 'input_nominal_screen.dart';
 
@@ -100,88 +103,133 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded,
-              color: AppColors.primary, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('FlexiBank'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: AppColors.border),
-        ),
-      ),
-      body: Column(
-        children: [
-          // Header & Bank Selection
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: SingleChildScrollView(
+    return Consumer<AccessibilityProvider>(
+      builder: (context, accessibilityProvider, _) {
+        final spacingScale = accessibilityProvider.getSpacingMultiplier();
+
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_rounded,
+                  color: AppColors.primary, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: const Text('FlexiBank'),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1),
+              child: Container(height: 1, color: AppColors.border),
+            ),
+          ),
+          body: Column(
+            children: [
+              // Header & Bank Selection
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(20 * spacingScale),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 8 * spacingScale),
+                        const Text(
+                          'New Transfer',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: 6 * spacingScale),
+                        const Text(
+                          'Enter the exact account number below to\nlocate the recipient.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                            height: 1.5,
+                          ),
+                        ),
+                        SizedBox(height: 28 * spacingScale),
+
+                        // Bank dropdown
+                        Text(
+                          _dropdownLabel,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: 8 * spacingScale),
+                        Semantics(
+                          label: 'Select $_dropdownLabel, current: $_selectedItem',
+                          child: Container(
+                            height: 56 * spacingScale,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _selectedItem,
+                                isExpanded: true,
+                                padding: EdgeInsets.symmetric(horizontal: 16 * spacingScale),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                                icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                                    color: AppColors.textSecondary),
+                                items: _items
+                                    .map((b) => DropdownMenuItem(
+                                          value: b,
+                                          child: Text(b),
+                                        ))
+                                    .toList(),
+                                onChanged: (v) => setState(() => _selectedItemState = v!),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Account Number Display (Sticky)
+              Container(
+                color: AppColors.background,
+                padding: EdgeInsets.symmetric(horizontal: 20 * spacingScale, vertical: 12 * spacingScale),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 8),
-                    const Text(
-                      'New Transfer',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Enter the exact account number below to\nlocate the recipient.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-
-                    // Bank dropdown
                     Text(
-                      _dropdownLabel,
+                      _accountFieldLabel,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Semantics(
-                      label: 'Select $_dropdownLabel, current: $_selectedItem',
-                      child: Container(
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedItem,
-                            isExpanded: true,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                            icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                                color: AppColors.textSecondary),
-                            items: _items
-                                .map((b) => DropdownMenuItem(
-                                      value: b,
-                                      child: Text(b),
-                                    ))
-                                .toList(),
-                            onChanged: (v) => setState(() => _selectedItemState = v!),
+                    SizedBox(height: 8 * spacingScale),
+                    Container(
+                      height: 64 * spacingScale,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _account.isEmpty ? _placeholder : _formatAccount(_account),
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            color: _account.isEmpty ? AppColors.textHint : AppColors.textPrimary,
+                            letterSpacing: 2,
                           ),
                         ),
                       ),
@@ -189,100 +237,40 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
                   ],
                 ),
               ),
-            ),
-          ),
 
-          // Account Number Display (Sticky)
-          Container(
-            color: AppColors.background,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _accountFieldLabel,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+              // Numpad
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16 * spacingScale, vertical: 8 * spacingScale),
+                  child: CustomNumpad(
+                    onKeyPressed: _onAccountKey,
+                    showMic: true,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Center(
-                    child: Text(
-                      _account.isEmpty ? _placeholder : _formatAccount(_account),
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        color: _account.isEmpty ? AppColors.textHint : AppColors.textPrimary,
-                        letterSpacing: 2,
-                      ),
+              ),
+
+              // Verify button
+              Padding(
+                padding: EdgeInsets.fromLTRB(20 * spacingScale, 8 * spacingScale, 20 * spacingScale, 24 * spacingScale),
+                child: AccessibleElevatedButton(
+                  onPressed: _isLoading || _account.isEmpty ? null : _verifyRecipient,
+                  icon: _isLoading
+                      ? null
+                      : Icons.person_add_rounded,
+                  child: Text(
+                    _isLoading ? 'Verifying...' : 'Verify Recipient',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-
-          // Numpad
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: CustomNumpad(
-                onKeyPressed: _onAccountKey,
-                showMic: true,
               ),
-            ),
+            ],
           ),
-
-          // Verify button
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: _isLoading || _account.isEmpty ? null : _verifyRecipient,
-                icon: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.person_add_rounded,
-                        color: Colors.white, size: 20),
-                label: Text(
-                  _isLoading ? 'Verifying...' : 'Verify Recipient',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _isLoading || _account.isEmpty
-                      ? AppColors.surfaceDark
-                      : AppColors.primary,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

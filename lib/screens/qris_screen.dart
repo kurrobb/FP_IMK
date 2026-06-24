@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants/colors.dart';
+import '../services/accessibility_provider.dart';
+import '../widgets/accessible_button.dart';
 
 class QrisScreen extends StatefulWidget {
   const QrisScreen({super.key});
@@ -33,114 +36,179 @@ class _QrisScreenState extends State<QrisScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded,
-              color: AppColors.primary, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('FlexiBank'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: AppColors.border),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const SizedBox(height: 8),
-            const Text(
-              'Position the QR code inside the\nframe to pay or transfer instantly.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-                height: 1.5,
-              ),
+    return Consumer<AccessibilityProvider>(
+      builder: (context, accessibilityProvider, _) {
+        final spacingScale = accessibilityProvider.getSpacingMultiplier();
+        final buttonScale = accessibilityProvider.getButtonSizeMultiplier();
+
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_rounded,
+                  color: AppColors.primary, size: 20),
+              onPressed: () => Navigator.pop(context),
             ),
-            const SizedBox(height: 20),
-
-            // Scanner frame
-            Stack(
-              alignment: Alignment.center,
+            title: const Text('FlexiBank'),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1),
+              child: Container(height: 1, color: AppColors.border),
+            ),
+          ),
+          body: SingleChildScrollView(
+            padding: EdgeInsets.all(20 * spacingScale),
+            child: Column(
               children: [
-                Container(
-                  width: double.infinity,
-                  height: 300,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD8D8D8),
-                    borderRadius: BorderRadius.circular(16),
+                SizedBox(height: 8 * spacingScale),
+                const Text(
+                  'Position the QR code inside the\nframe to pay or transfer instantly.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                    height: 1.5,
                   ),
-                  child: Stack(
-                    children: [
-                      // Corner brackets
-                      ..._corners(),
+                ),
+                SizedBox(height: 20 * spacingScale),
 
-                      // QR placeholder icon
-                      Center(
-                        child: Icon(
-                          Icons.qr_code_2_rounded,
-                          size: 80,
-                          color: Colors.black.withValues(alpha: 0.15),
-                        ),
+                // Scanner frame
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 300 * buttonScale,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD8D8D8),
+                        borderRadius: BorderRadius.circular(16),
                       ),
+                      child: Stack(
+                        children: [
+                          // Corner brackets
+                          ..._corners(),
 
-                      // Scan line
-                      AnimatedBuilder(
-                        animation: _scanAnim,
-                        builder: (_, _) => Positioned(
-                          top: _scanAnim.value * 280,
-                          left: 24,
-                          right: 24,
-                          child: Container(
-                            height: 2,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(colors: [
-                                Colors.transparent,
-                                AppColors.primary,
-                                Colors.transparent,
-                              ]),
-                              borderRadius: BorderRadius.circular(1),
+                          // QR placeholder icon
+                          Center(
+                            child: Icon(
+                              Icons.qr_code_2_rounded,
+                              size: 80 * buttonScale,
+                              color: Colors.black.withValues(alpha: 0.15),
                             ),
                           ),
-                        ),
-                      ),
 
-                      // Torch button
-                      Positioned(
-                        bottom: 16,
-                        right: 16,
-                        child: Semantics(
-                          label: _torchOn ? 'Turn off torch' : 'Turn on torch',
-                          button: true,
-                          child: GestureDetector(
-                            onTap: () =>
-                                setState(() => _torchOn = !_torchOn),
-                            child: Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.12),
-                                    blurRadius: 8,
+                          // Scan line
+                          AnimatedBuilder(
+                            animation: _scanAnim,
+                            builder: (_, _) => Positioned(
+                              top: _scanAnim.value * 280 * buttonScale,
+                              left: 24,
+                              right: 24,
+                              child: Container(
+                                height: 2,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(colors: [
+                                    Colors.transparent,
+                                    AppColors.primary,
+                                    Colors.transparent,
+                                  ]),
+                                  borderRadius: BorderRadius.circular(1),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // Torch button - scales with accessibility
+                          Positioned(
+                            bottom: 16 * spacingScale,
+                            right: 16 * spacingScale,
+                            child: Semantics(
+                              label: _torchOn ? 'Turn off torch' : 'Turn on torch',
+                              button: true,
+                              child: GestureDetector(
+                                onTap: () =>
+                                    setState(() => _torchOn = !_torchOn),
+                                child: Container(
+                                  width: 44 * buttonScale,
+                                  height: 44 * buttonScale,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.12),
+                                        blurRadius: 8,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              child: Icon(
-                                _torchOn
-                                    ? Icons.flashlight_on_rounded
-                                    : Icons.flashlight_off_rounded,
-                                color: AppColors.textPrimary,
-                                size: 22,
+                                  child: Icon(
+                                    _torchOn
+                                        ? Icons.flashlight_on_rounded
+                                        : Icons.flashlight_off_rounded,
+                                    color: AppColors.textPrimary,
+                                    size: 22 * buttonScale,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20 * spacingScale),
+
+                // Upload button
+                AccessibleElevatedButton(
+                  onPressed: () {},
+                  icon: Icons.image_outlined,
+                  child: const Text(
+                    'Upload from Gallery',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16 * spacingScale),
+
+                // Supported standards
+                Container(
+                  padding: EdgeInsets.all(16 * spacingScale),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Icon(Icons.info_outline_rounded,
+                          color: AppColors.primary, size: 20),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Supported Standards',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Accepts all national standard QRIS codes for merchants and personal transfers.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -148,79 +216,9 @@ class _QrisScreenState extends State<QrisScreen>
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-
-            // Upload button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.image_outlined,
-                    color: Colors.white, size: 22),
-                label: const Text(
-                  'Upload from Gallery',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Supported standards
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Icon(Icons.info_outline_rounded,
-                      color: AppColors.primary, size: 20),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Supported Standards',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Accepts all national standard QRIS codes for merchants and personal transfers.',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
-                            height: 1.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

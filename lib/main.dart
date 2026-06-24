@@ -156,6 +156,9 @@ class _MainShellState extends State<MainShell> {
 
     return Consumer<AccessibilityProvider>(
       builder: (context, provider, _) {
+        final buttonScale = provider.getButtonSizeMultiplier();
+        final spacingScale = provider.getSpacingMultiplier();
+
         return Scaffold(
           body: Stack(
             children: [
@@ -171,13 +174,13 @@ class _MainShellState extends State<MainShell> {
               ),
             ],
           ),
-          bottomNavigationBar: _buildBottomNav(),
+          bottomNavigationBar: _buildBottomNav(buttonScale, spacingScale),
         );
       },
     );
   }
 
-  Widget _buildBottomNav() {
+  Widget _buildBottomNav(double buttonScale, double spacingScale) {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -185,14 +188,14 @@ class _MainShellState extends State<MainShell> {
       ),
       child: SafeArea(
         child: SizedBox(
-          height: 64,
+          height: 64 * buttonScale,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _navItem(Icons.home_rounded, 'Home', 0),
-              _navItem(Icons.swap_horiz_rounded, 'Transfer', 1),
-              _navItem(Icons.history_rounded, 'History', 2),
-              _navItem(Icons.settings_rounded, 'Settings', 3),
+              _navItem(Icons.home_rounded, 'Home', 0, buttonScale, spacingScale),
+              _navItem(Icons.swap_horiz_rounded, 'Transfer', 1, buttonScale, spacingScale),
+              _navItem(Icons.history_rounded, 'History', 2, buttonScale, spacingScale),
+              _navItem(Icons.settings_rounded, 'Settings', 3, buttonScale, spacingScale),
             ],
           ),
         ),
@@ -200,7 +203,7 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
-  Widget _navItem(IconData icon, String label, int index) {
+  Widget _navItem(IconData icon, String label, int index, double buttonScale, double spacingScale) {
     final isActive = _currentIndex == index;
     return Semantics(
       label: label,
@@ -210,29 +213,29 @@ class _MainShellState extends State<MainShell> {
         onTap: () => _onNavTap(index),
         behavior: HitTestBehavior.opaque,
         child: SizedBox(
-          width: 72,
+          width: 72 * buttonScale,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                width: 48,
-                height: 32,
+                width: 48 * buttonScale,
+                height: 32 * buttonScale,
                 decoration: BoxDecoration(
                   color: isActive ? AppColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
                   icon,
-                  size: 22,
+                  size: 22 * buttonScale,
                   color: isActive ? Colors.white : AppColors.navInactive,
                 ),
               ),
-              const SizedBox(height: 3),
+              SizedBox(height: 3 * spacingScale),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 11 * spacingScale,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                   color: isActive ? AppColors.primary : AppColors.navInactive,
                 ),
