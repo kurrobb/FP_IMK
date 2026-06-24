@@ -256,16 +256,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    const Text(
-                      'Need help accessing your account?',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
                     // Create Account link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
