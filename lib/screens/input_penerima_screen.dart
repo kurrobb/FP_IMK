@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants/colors.dart';
+import '../services/accessibility_provider.dart';
+import '../utils/accessibility_constants.dart';
 import '../widgets/custom_numpad.dart';
 import 'input_nominal_screen.dart';
 
@@ -24,6 +27,10 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
   String _account = '';
 
   static const _banks = ['BRI', 'BCA', 'Mandiri', 'BNI', 'CIMB', 'Danamon'];
+  static const _ewallets = ['GoPay', 'OVO', 'Dana', 'ShopeePay', 'LinkAja', 'Jenius'];
+
+  List<String> get _options =>
+      widget.method == 'E-Wallet' ? _ewallets : _banks;
 
   @override
   void dispose() {
@@ -104,79 +111,94 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
       ),
       body: Column(
         children: [
-          // Header & Bank Selection
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 8),
-                    const Text(
-                      'New Transfer',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Enter the exact account number below to\nlocate the recipient.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-
-                    // Bank dropdown
-                    const Text(
-                      'Bank/E-Wallet Tujuan',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Semantics(
-                      label: 'Select bank, current: $_selectedBank',
-                      child: Container(
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedBank,
-                            isExpanded: true,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                            icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                                color: AppColors.textSecondary),
-                            items: _banks
-                                .map((b) => DropdownMenuItem(
-                                      value: b,
-                                      child: Text(b),
-                                    ))
-                                .toList(),
-                            onChanged: (v) => setState(() => _selectedBank = v!),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+          // Header & Bank Selection — non-scrollable, compact
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'New Transfer',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Enter the exact account number below to locate the recipient.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Bank / E-Wallet dropdown — label menyesuaikan method
+                Text(
+                  widget.method == 'E-Wallet'
+                      ? 'E-Wallet Tujuan'
+                      : 'Bank Tujuan',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Semantics(
+                  label: 'Select bank, current: $_selectedBank',
+                  child: Container(
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _options.contains(_selectedBank)
+                            ? _selectedBank
+                            : _options.first,
+                        isExpanded: true,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.textSecondary),
+                        // selectedItemBuilder agar teks selected SELALU di tengah
+                        selectedItemBuilder: (context) {
+                          return _options.map((b) {
+                            return Center(
+                              child: Text(
+                                b,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          }).toList();
+                        },
+                        items: _options
+                            .map((b) => DropdownMenuItem(
+                                  value: b,
+                                  child: Text(b),
+                                ))
+                            .toList(),
+                        onChanged: (v) => setState(() => _selectedBank = v!),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -230,44 +252,51 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
             ),
           ),
 
-          // Verify button
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: _isLoading || _account.isEmpty ? null : _verifyRecipient,
-                icon: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.person_add_rounded,
-                        color: Colors.white, size: 20),
-                label: Text(
-                  _isLoading ? 'Verifying...' : 'Verify Recipient',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+          // Verify button — height ikut accessibility button size multiplier
+          Consumer<AccessibilityProvider>(
+            builder: (context, ap, _) {
+              final btnH = AccessibilityConstants.getButtonHeight(
+                  ap.getButtonSizeMultiplier());
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: btnH,
+                  child: ElevatedButton.icon(
+                    onPressed:
+                        _isLoading || _account.isEmpty ? null : _verifyRecipient,
+                    icon: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.person_add_rounded,
+                            color: Colors.white, size: 20),
+                    label: Text(
+                      _isLoading ? 'Verifying...' : 'Verify Recipient',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isLoading || _account.isEmpty
+                          ? AppColors.surfaceDark
+                          : AppColors.primary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _isLoading || _account.isEmpty
-                      ? AppColors.surfaceDark
-                      : AppColors.primary,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),

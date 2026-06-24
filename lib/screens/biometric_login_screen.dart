@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../widgets/accessible_button.dart';
 import '../main.dart';
 import 'package:fp_imk/services/auth_service.dart';
 
@@ -91,27 +92,9 @@ class BiometricLoginScreen extends StatelessWidget {
               const Spacer(),
 
               // Use Password button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: const Text(
-                    'Use Password',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+              AccessibleButton(
+                label: 'Use Password',
+                onPressed: () => Navigator.pop(context),
               ),
               const SizedBox(height: 16),
 

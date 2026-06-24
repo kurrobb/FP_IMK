@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import '../models/transaction.dart';
+import '../widgets/accessible_button.dart';
 
 class DetailTransaksiScreen extends StatelessWidget {
   final Transaction transaction;
@@ -198,49 +199,16 @@ class DetailTransaksiScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
             child: Column(
               children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.download_rounded,
-                        color: Colors.white, size: 20),
-                    label: const Text(
-                      'Download Receipt',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
-                    ),
-                  ),
+                AccessibleButton(
+                  label: 'Download Receipt',
+                  icon: Icons.download_rounded,
+                  onPressed: () {},
                 ),
                 const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.share_rounded,
-                        color: AppColors.primary, size: 20),
-                    label: const Text(
-                      'Share Details',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.border),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
-                    ),
-                  ),
+                AccessibleOutlinedButton(
+                  label: 'Share Details',
+                  icon: Icons.share_rounded,
+                  onPressed: () {},
                 ),
               ],
             ),

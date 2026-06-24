@@ -4,6 +4,7 @@ import '../constants/colors.dart';
 import '../main.dart';
 import 'biometric_login_screen.dart';
 import 'register_screen.dart';
+import '../widgets/accessible_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -190,69 +191,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 28),
 
-                    // Secure Login button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: _login,
-                        icon: const SizedBox.shrink(),
-                        label: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Text(
-                              'Secure Login',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward_rounded,
-                                color: Colors.white, size: 20),
-                          ],
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                      ),
+                    AccessibleButton(
+                      label: 'Secure Login',
+                      onPressed: _login,
                     ),
                     const SizedBox(height: 12),
 
                     // Biometric Login button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const BiometricLoginScreen()),
-                          );
-                        },
-                        icon: const Icon(Icons.fingerprint_rounded,
-                            color: AppColors.primary, size: 22),
-                        label: const Text(
-                          'Biometric Login',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.border, width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                      ),
+                    AccessibleOutlinedButton(
+                      label: 'Biometric Login',
+                      icon: Icons.fingerprint_rounded,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const BiometricLoginScreen()),
+                        );
+                      },
                     ),
                     const SizedBox(height: 24),
 

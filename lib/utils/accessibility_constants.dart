@@ -5,9 +5,9 @@ class AccessibilityConstants {
   static const double textScaleLarge = 1.2;
 
   // Button size multipliers
-  static const double buttonSizeStandard = 1.0;
-  static const double buttonSizeLarge = 1.15;
-  static const double buttonSizeMaximum = 1.3;
+  static const double buttonSizeStandard = 1.0;    // 56 dp (Material Design default)
+  static const double buttonSizeLarge = 1.2143;    // 68 dp (WCAG 2.1 recommended)
+  static const double buttonSizeMaximum = 1.4286;  // 80 dp (motor impairment support)
 
   // Spacing multipliers
   static const double spacingCompact = 0.8;

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants/colors.dart';
+import '../services/accessibility_provider.dart';
+import '../utils/accessibility_constants.dart';
 import 'detail_tagihan_screen.dart';
 
 class _BillCategory {
@@ -232,35 +235,45 @@ class _TagihanScreenState extends State<TagihanScreen> {
                       ],
                     ),
                   ),
-                  Semantics(
-                    label: 'Pay City Power Co.',
-                    button: true,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const DetailTagihanScreen(
-                              category: 'Electricity'),
+                  Consumer<AccessibilityProvider>(
+                    builder: (context, ap, _) {
+                      final h = AccessibilityConstants.getButtonHeight(
+                              ap.getButtonSizeMultiplier()) *
+                          0.75; // inline tombol lebih compact
+                      return Semantics(
+                        label: 'Pay City Power Co.',
+                        button: true,
+                        child: SizedBox(
+                          height: h,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const DetailTagihanScreen(
+                                    category: 'Electricity'),
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'Pay',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text(
-                        'Pay',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ],
               ),

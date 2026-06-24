@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../widgets/accessible_button.dart';
 
 class QrisScreen extends StatefulWidget {
   const QrisScreen({super.key});
@@ -151,29 +152,10 @@ class _QrisScreenState extends State<QrisScreen>
             const SizedBox(height: 20),
 
             // Upload button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.image_outlined,
-                    color: Colors.white, size: 22),
-                label: const Text(
-                  'Upload from Gallery',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
+            AccessibleButton(
+              label: 'Upload from Gallery',
+              icon: Icons.image_outlined,
+              onPressed: () {},
             ),
             const SizedBox(height: 16),
 

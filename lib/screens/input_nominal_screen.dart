@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants/colors.dart';
+import '../services/accessibility_provider.dart';
+import '../utils/accessibility_constants.dart';
 import '../widgets/custom_numpad.dart';
 import 'konfirmasi_transfer_screen.dart';
 
@@ -201,48 +204,54 @@ class _InputNominalScreenState extends State<InputNominalScreen> {
             ),
           ),
 
-          // Continue button
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: _canContinue
-                    ? () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => KonfirmasiTransferScreen(
-                              recipientName: widget.recipientName,
-                              bank: widget.bank,
-                              accountNumber: widget.accountNumber,
-                              amount: double.tryParse(_amount) ?? 0,
-                            ),
-                          ),
-                        )
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _canContinue
-                      ? AppColors.primary
-                      : AppColors.surfaceDark,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+          // Continue button — height ikut accessibility button size multiplier
+          Consumer<AccessibilityProvider>(
+            builder: (context, ap, _) {
+              final btnH = AccessibilityConstants.getButtonHeight(
+                  ap.getButtonSizeMultiplier());
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: btnH,
+                  child: ElevatedButton(
+                    onPressed: _canContinue
+                        ? () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => KonfirmasiTransferScreen(
+                                  recipientName: widget.recipientName,
+                                  bank: widget.bank,
+                                  accountNumber: widget.accountNumber,
+                                  amount: double.tryParse(_amount) ?? 0,
+                                ),
+                              ),
+                            )
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _canContinue
+                          ? AppColors.primary
+                          : AppColors.surfaceDark,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: _canContinue
+                            ? Colors.white
+                            : AppColors.textSecondary,
+                      ),
+                    ),
                   ),
                 ),
-                child: Text(
-                  'Continue',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: _canContinue
-                        ? Colors.white
-                        : AppColors.textSecondary,
-                  ),
-                ),
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),

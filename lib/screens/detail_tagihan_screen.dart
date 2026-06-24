@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../widgets/accessible_button.dart';
 import 'konfirmasi_tagihan_screen.dart';
 
 class DetailTagihanScreen extends StatelessWidget {
@@ -144,32 +145,13 @@ class DetailTagihanScreen extends StatelessWidget {
           // Pay Now button
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const KonfirmasiTagihanScreen(),
-                  ),
-                ),
-                icon: const Icon(Icons.account_balance_wallet_rounded,
-                    color: Colors.white, size: 20),
-                label: const Text(
-                  'Pay Now',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+            child: AccessibleButton(
+              label: 'Pay Now',
+              icon: Icons.account_balance_wallet_rounded,
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const KonfirmasiTagihanScreen(),
                 ),
               ),
             ),

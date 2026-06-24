@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import '../models/transaction.dart';
+import '../widgets/accessible_button.dart';
 
 class KonfirmasiTagihanScreen extends StatelessWidget {
   const KonfirmasiTagihanScreen({super.key});
@@ -255,27 +256,9 @@ class KonfirmasiTagihanScreen extends StatelessWidget {
 
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: () => _confirm(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                child: const Text(
-                  'Confirm & Pay',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+            child: AccessibleButton(
+              label: 'Confirm & Pay',
+              onPressed: () => _confirm(context),
             ),
           ),
         ],

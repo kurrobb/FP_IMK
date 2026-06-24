@@ -11,7 +11,7 @@ class AccessibilitySettings {
     this.largeText = true,
     this.voiceControl = false,
     this.assistiveTouch = true,
-    this.buttonSize = 1,
+    this.buttonSize = 0,  // default: Standard (56dp)
     this.spacing = 1,
   });
 
@@ -49,7 +49,7 @@ class AccessibilitySettings {
       largeText: map['largeText'] ?? true,
       voiceControl: map['voiceControl'] ?? false,
       assistiveTouch: map['assistiveTouch'] ?? true,
-      buttonSize: map['buttonSize'] ?? 1,
+      buttonSize: map['buttonSize'] ?? 0,
       spacing: map['spacing'] ?? 1,
     );
   }
@@ -134,16 +134,20 @@ class AccessibilityService {
   }
 
   /// Get button size multiplier
+  /// Based on WCAG 2.1 SC 2.5.5 touch target guidelines:
+  ///   Standard = 56dp (Material Design default, above 44dp WCAG min)
+  ///   Large    = 68dp (~21% larger)
+  ///   Maximum  = 80dp (~43% larger, for users with motor impairment)
   double getButtonSizeMultiplier() {
     switch (_settings.buttonSize) {
       case 0:
-        return 1.0; // Standard
+        return 1.0;      // Standard: 56dp
       case 1:
-        return 1.15; // Large
+        return 1.2143;   // Large: 68dp
       case 2:
-        return 1.3; // Maximum
+        return 1.4286;   // Maximum: 80dp
       default:
-        return 1.15;
+        return 1.0;
     }
   }
 
