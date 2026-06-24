@@ -19,11 +19,23 @@ class InputPenerimaScreen extends StatefulWidget {
 
 class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
   final _accountController = TextEditingController();
-  String _selectedBank = 'BRI';
   bool _isLoading = false;
   String _account = '';
 
+  bool get _isEwallet => widget.method == 'E-Wallet';
+  List<String> get _items => _isEwallet ? _ewallets : _banks;
+  String get _dropdownLabel => _isEwallet ? 'E-Wallet Tujuan' : 'Bank Tujuan';
+  String get _accountFieldLabel => _isEwallet ? 'Phone Number' : 'Account Number';
+  String get _placeholder => _isEwallet ? '0812 3456 7890' : '0000 0000 0000';
+
+  String get _selectedItem {
+    final first = _items.first;
+    return _items.contains(_selectedItemState) ? _selectedItemState : first;
+  }
+  String _selectedItemState = '';
+
   static const _banks = ['BRI', 'BCA', 'Mandiri', 'BNI', 'CIMB', 'Danamon'];
+  static const _ewallets = ['GoPay', 'OVO', 'Dana', 'LinkAja', 'ShopeePay'];
 
   @override
   void dispose() {
@@ -79,7 +91,7 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
       MaterialPageRoute(
         builder: (_) => InputNominalScreen(
           recipientName: widget.prefillName ?? 'Penerima Terverifikasi',
-          bank: _selectedBank,
+          bank: _selectedItem,
           accountNumber: _account.replaceAll(' ', ''),
         ),
       ),
@@ -133,9 +145,9 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
                     const SizedBox(height: 28),
 
                     // Bank dropdown
-                    const Text(
-                      'Bank/E-Wallet Tujuan',
-                      style: TextStyle(
+                    Text(
+                      _dropdownLabel,
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
@@ -143,7 +155,7 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
                     ),
                     const SizedBox(height: 8),
                     Semantics(
-                      label: 'Select bank, current: $_selectedBank',
+                      label: 'Select $_dropdownLabel, current: $_selectedItem',
                       child: Container(
                         height: 56,
                         decoration: BoxDecoration(
@@ -153,7 +165,7 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
                         ),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
-                            value: _selectedBank,
+                            value: _selectedItem,
                             isExpanded: true,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             style: const TextStyle(
@@ -163,13 +175,13 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
                             ),
                             icon: const Icon(Icons.keyboard_arrow_down_rounded,
                                 color: AppColors.textSecondary),
-                            items: _banks
+                            items: _items
                                 .map((b) => DropdownMenuItem(
                                       value: b,
                                       child: Text(b),
                                     ))
                                 .toList(),
-                            onChanged: (v) => setState(() => _selectedBank = v!),
+                            onChanged: (v) => setState(() => _selectedItemState = v!),
                           ),
                         ),
                       ),
@@ -187,9 +199,9 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Account Number',
-                  style: TextStyle(
+                Text(
+                  _accountFieldLabel,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -205,7 +217,7 @@ class _InputPenerimaScreenState extends State<InputPenerimaScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      _account.isEmpty ? '0000 0000 0000' : _formatAccount(_account),
+                      _account.isEmpty ? _placeholder : _formatAccount(_account),
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
